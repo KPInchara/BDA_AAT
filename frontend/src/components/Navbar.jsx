@@ -1,6 +1,10 @@
 import React from 'react'
-
+import {BiLogOut} from "react-icons/bi"
 function Navbar() {
+    const handelLogout=()=>{
+        sessionStorage.removeItem("user")
+        window.location.href="/signin"
+    }
   return (
     <nav class="navbar navbar-expand-lg  navbar-dark bg-primary">
                 <a class="navbar-brand" >BDA_AAT</a>
@@ -19,7 +23,7 @@ function Navbar() {
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" href="/profile">Profile</a>
                                 <hr />
-                                <a class="dropdown-item" href="/">Logout</a>
+                                <a class="dropdown-item" style={{cursor:"pointer",fontSize:"18px",padding:"8px"}} onClick={handelLogout}><BiLogOut style={{width:"40px",padding:"0px"}}/> Logout</a>
                             </div>
                         </li>
                     </ul>

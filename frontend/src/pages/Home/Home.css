@@ -40,26 +40,60 @@ body {
     margin-right: 0px;
 }
 .home-container-main-left select{
-    width: 80%;
+    width: 90%;
     padding: 4px;
-    border: none;
     font-size: 22px;
     text-transform: uppercase;
     cursor: pointer;
     text-align: center;
+    font-weight:600 ;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 .home-container-main-left .collections{
     margin-top: 20px;
     background: none;
-    width: 80%;
+    width: 90%;
     display: flex;
     justify-content: left;
-    align-items: center;
     text-transform: uppercase;
     font-size: 18px;
-
+    background: white;
+    border-radius: 25px;
+    padding: 18px;
+    font-weight: 500;
+    text-transform: capitalize;
+    height: 72%;
 }
-
+.collections ul{
+    width: 100%;
+}
+.collections .database-name {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.collections .database-name li{
+    list-style-type: none;
+    font-size: 22px;
+    margin-bottom: 4px;
+    padding: 4px;
+}
+.collections-tag{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom:4px ;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
+}
+.modal-title{
+    text-align: center;
+    font-size: 32px;
+    font-weight: bolder;
+    color: #110E3D;
+}
 .home-container-main-right {
     width: 50%;
     border-left: 4px solid black;
@@ -69,4 +103,51 @@ body {
     margin: 5px;
     margin-left: 0px;
     padding: 10px;
+    text-align: center;
+}
+.home-container-main-right h1,
+.home-container-main-left h1{
+    font-weight: 900;
+    color: blueviolet;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 54px;
+    width: 94%;
+    border-bottom: 4px double blueviolet;
+    text-align: center;
+}
+
+.dropbox{
+    margin-top: 50px;
+    background:white;
+    height: 60%;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    padding: 18px;
+    font-weight: 900;
+}
+.dropbox p{
+    cursor: pointer !important;
+}
+.dropbox .success{
+    color: green;
+}
+.home-container-main-right .file-upload h2{
+    font-weight: 900;
+    color: green;
+    font-size: 104px;
+}
+.home-container-main-right .file-upload span{
+    color: green;
+}
+.home-container-main-right button{
+    margin-top: 10px;
+    width: 80%;
+    font-size: 24px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 2px;
 }
