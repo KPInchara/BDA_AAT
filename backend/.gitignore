@@ -1,2 +1,2 @@
-# ./import/exported_data.json
-# ./upload/*
+/import/exported_data.json
+/upload/*.csv
