@@ -109,7 +109,7 @@ def download_file():
                 document_json = json.loads(json_util.dumps(document))
                 json.dump(document_json, file)
                 file.write('\n')
-        return send_file(file_path, as_attachment=True)
+        return send_file(file_path, as_attachment=True),200
     # elif request.method == 'GET':
     #     return jsonify({'collection_name':collection_name}), 200
     else:
@@ -128,7 +128,17 @@ def get_collections():
     get_collections=get_all_collections(database_name)
     return jsonify({'collections': get_collections}),200
 
-
+@app.route("/delete_collections",methods=["DELETE"])
+def delete_collection():
+    database_name = request.args.get('db')
+    collection_name = request.args.get('collection')
+    try:
+        set_db=client[database_name]
+        set_db.drop_collection(collection_name)
+        return "deleted",200
+    except Exception as e:
+       return "failed to delete",400
+    
 
 
 
