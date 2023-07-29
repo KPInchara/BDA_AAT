@@ -1,0 +1,28 @@
+body {
+    overflow: hidden;
+}
+
+.signup-container-bg {
+    position: absolute;
+    width: 538.03px;
+    height: 2678.58px;
+    left: 717.45px;
+    top: -759.84px;
+    background: linear-gradient(246.63deg, #49E2B3 0%, #1D576D 71.15%, #110E3D 100%);
+    transform: rotate(-55.88deg);
+    z-index: -1;
+}
+
+.signup-container-main {
+    margin: 0.9rem 0.5rem 1rem 0.5rem;
+    z-index: 1;
+    display: flex;
+    height: 96vh;
+    overflow: auto;
+    width: 99%;
+    justify-content: space-between;
+    left: calc(50% - 1453px/2 - 2px);
+    top: calc(50% - 897px/2 + 16.5px);
+    background: rgba(145, 255, 221, 0.67);
+    box-shadow: 0px 0px 28px 6px rgba(0, 0, 0, 0.25);
+}

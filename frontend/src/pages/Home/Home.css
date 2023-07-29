@@ -1,0 +1,72 @@
+body {
+    overflow: hidden;
+}
+
+.home-container-bg {
+    position: absolute;
+    width: 538.03px;
+    height: 2678.58px;
+    left: 717.45px;
+    top: -759.84px;
+    background: linear-gradient(246.63deg, #49E2B3 0%, #1D576D 71.15%, #110E3D 100%);
+    transform: rotate(-55.88deg);
+    z-index: -1;
+}
+
+.home-container-main {
+    margin: 0.5rem 0.5rem 1rem 0.5rem;
+    z-index: 1;
+    display: flex;
+    height: 89vh;
+    overflow: auto;
+    width: 99%;
+    justify-content: space-between;
+    left: calc(50% - 1453px/2 - 2px);
+    top: calc(50% - 897px/2 + 16.5px);
+    background: rgba(145, 255, 221, 0.67);
+    box-shadow: 0px 0px 28px 6px rgba(0, 0, 0, 0.25);
+}
+
+.home-container-main-left {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 50%;
+    border-right: 4px solid black;
+    border-radius: 100px;
+  
+    margin: 5px;
+    margin-right: 0px;
+}
+.home-container-main-left select{
+    width: 80%;
+    padding: 4px;
+    border: none;
+    font-size: 22px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+}
+.home-container-main-left .collections{
+    margin-top: 20px;
+    background: none;
+    width: 80%;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 18px;
+
+}
+
+.home-container-main-right {
+    width: 50%;
+    border-left: 4px solid black;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    border-radius: 100px;
+    margin: 5px;
+    margin-left: 0px;
+    padding: 10px;
+}
