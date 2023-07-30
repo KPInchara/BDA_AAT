@@ -18,10 +18,11 @@ function Navbar() {
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Profile
+                              Services
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <a class="dropdown-item" href="/profile">Profile</a>
+                                <a class="dropdown-item" href="/analysis">Analysis</a>
                                 <hr />
                                 <a class="dropdown-item" style={{cursor:"pointer",fontSize:"18px",padding:"8px"}} onClick={handelLogout}><BiLogOut style={{width:"40px",padding:"0px"}}/> Logout</a>
                             </div>

@@ -6,16 +6,22 @@ import { useDropzone } from 'react-dropzone'
 import { BsFiletypeCsv, BsFillDatabaseFill } from 'react-icons/bs'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Stack from '@mui/material/Stack';
+import CircularProgress from '@mui/material/CircularProgress';
 function Home() {
     const [databases, setDatabases] = useState([]);
     const [currentDB, setcurrentDB] = useState(null)
     const [collections, setcollections] = useState([])
     const [selectedFile, setselectedFile] = useState(null)
     const [seletedFileName, setseletedFileName] = useState(null)
+    const [userSelectedDB, setuserSelectedDB] = useState(null)
+    const [loading, setloading] = useState(false)
+    const [createDBName, setcreateDBName] = useState(null)
+    const [createCollection, setcreateCollection] = useState(null)
     useEffect(() => {
         fetchDataBaseNames();
     }, []);
-    const notify = (type,msg) => {
+    const notify = (type, msg) => {
         if (type === 'success') {
             toast.success(msg, {
                 position: "bottom-center"
@@ -34,14 +40,11 @@ function Home() {
     };
     const fetchDataBaseNames = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/databaseNames'); // Assuming the React app is hosted on the same domain as the Flask server
+            const response = await axios.get('http://127.0.0.1:5000/databaseNames');
             setDatabases(response.data.databaseNames)
-            setcurrentDB(response.data.databaseNames[0])
-            // const response2 = await axios.get(`http://127.0.0.1:5000/get_collections?db=${currentDB}`); // Assuming the React app is hosted on the same domain as the Flask server
-            // setcollections(response2.data.collections);
-            // console.log(collections,currentDB);
         } catch (error) {
             console.error('Error fetching data:', error);
+            notify("error", "Unable to load database names")
         }
     };
     const handelDownload = async (e) => {
@@ -73,55 +76,101 @@ function Home() {
         }
     }
     const handelDelete = async (e) => {
-        console.log(currentDB,e.target.id);
+        console.log(currentDB, e.target.id);
         try {
             const response = await axios.delete(`http://127.0.0.1:5000/delete_collections?db=${currentDB}&collection=${e.target.id}`)
             console.log(response.data);
-            if(response.status===200){
-                notify("success",`${e.target.id} Deleted from ${currentDB} Database`)
+            if (response.status === 200) {
+                notify("success", `${e.target.id} Deleted from ${currentDB} Database`)
+                window.location.href = "/"
             }
         } catch (error) {
             console.log(error);
         }
     }
     const onDrop = useCallback(acceptedFile => {
-        if (acceptedFile[0].type != "text/csv") return notify("info","Only CSV files are allowed")
+        if (acceptedFile[0].type !== "text/csv") return notify("info", "Only CSV files are allowed")
         setselectedFile(acceptedFile[0])
         setseletedFileName(acceptedFile[0].path)
     }, [])
+    //console.log(process.env.REACT_APP_BASE_URL);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
     const handelUploadFile = async () => {
+        if(userSelectedDB === null){ 
+            notify("info","Please select the database")
+            return 
+        }
         try {
             const formData = new FormData();
             formData.append("file", selectedFile);
-            const response = await axios.post(`http://127.0.0.1:5000/upload`, formData,
+            const response = await axios.post(`http://127.0.0.1:5000/upload?db=${userSelectedDB}`, formData,
                 {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
                 })
             if (response.status === 200) {
-                notify("success",`${seletedFileName} Uploaded Sucessfully`)
+                notify("success", `${seletedFileName} Uploaded Sucessfully`)
                 setselectedFile(null)
                 setseletedFileName(null)
             }
         } catch (error) {
             console.log(error);
-            notify("error",`${seletedFileName} Failed to Upload`)
+            notify("error", `${seletedFileName} Failed to Upload`)
             setselectedFile(null)
             setseletedFileName(null)
         }
     }
     const handelViewModal = async (e) => {
-        console.log(e.target.id);
         setcurrentDB(e.target.id)
+        setloading(true)
         try {
             setcollections(null)
-            const response = await axios.get(`http://127.0.0.1:5000/get_collections?db=${e.target.id}`); // Assuming the React app is hosted on the same domain as the Flask server
+            const response = await axios.get(`http://127.0.0.1:5000/get_collections?db=${e.target.id}`);
             setcollections(response.data.collections);
-
+            setloading(false)
         } catch (error) {
             console.error('Error fetching data:', error);
+            setloading(false)
+            notify("error", "Error fetching collections")
+        }
+    }
+    const handelUserSelectedDB = (e) => {
+        setuserSelectedDB(e.target.value)
+    }
+    const handelCreateDB = async () => {
+        try {
+            if (createDBName === null) return notify("info", "Please Enter Valid database name")
+            if (createCollection === null) return notify("info", "Please Enter Valid collection name")
+            const response = await axios.post(`http://127.0.0.1:5000/createDB?db=${createDBName.split(" ")[0]}&collection=${createCollection}`)
+            if (response.status === 200) {
+                notify('success', response.data)
+                document.querySelector("#createdb").value = ""
+                document.querySelector("#createCollection").value = ""
+                setcreateCollection(null)
+                setcreateDBName(null)
+                fetchDataBaseNames()
+            }
+        } catch (error) {
+            console.log(error);
+            setcreateCollection("")
+            setcreateDBName("")
+            document.querySelector("#createdb").value = ""
+            document.querySelector("#createCollection").value = ""
+            notify("error", "failed to create database,try again")
+        }
+    }
+    const handelDeleteDB=async(e)=>{
+        try {
+            const response=await axios.delete(`http://127.0.0.1:5000/delete_database?db=${e.target.id}`)
+            if(response.status===200){
+                notify("success",response.data)
+                fetchDataBaseNames()
+                window.location.href="/"
+            }
+        } catch (error) {
+            console.log(error);
+            notify("error",`Failed to delete ${e.target.id} database`)
         }
     }
     return (
@@ -131,10 +180,15 @@ function Home() {
             <div className="home-container-main">
                 <section className="home-container-main-left">
                     <h1 className="m-2 p-2">Import File</h1>
+                    <div className="db-form">
+                        <input type="text" id="createdb" value={createDBName} onChange={(e) => setcreateDBName(e.target.value)} placeholder="Enter Database Name" />
+                        <input type="text" id="createCollection" value={createCollection} onChange={(e) => setcreateCollection(e.target.value)} placeholder="Enter Collection Name" />
+                        <button type="button" onClick={handelCreateDB} class="btn btn-secondary">Create Database</button>
+                    </div>
                     <div className="collections">
                         <ul>
                             {databases.map((database, id) => (
-                                <div  key={id} className="database-name">
+                                <div key={id} className="database-name">
                                     <li><BsFillDatabaseFill />{database}</li>
                                     <button type="button" onClick={handelViewModal} id={database} className="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">View Collections</button>
                                 </div>
@@ -151,15 +205,25 @@ function Home() {
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    {collections && collections.map((collection, id) => (
-                                        <div className="collections-tag" key={id}>
-                                            <li >{collection}</li>
-                                            <div>
-                                                <button id={collection} onClick={handelDelete} className="btn btn-danger mr-10">Delete</button>
-                                                <button id={collection} onClick={handelDownload} className="btn btn-success">Download</button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    {loading ?
+                                        <Stack sx={{ color: 'grey.500' }} spacing={2} direction="row">
+                                            <CircularProgress color="success" /><span>Loading.....</span>
+                                        </Stack>
+                                        :
+                                        <>
+                                            {collections && collections.map((collection, id) => (
+                                                <div className="collections-tag" key={id}>
+                                                    <li >{collection}</li>
+                                                    <div>
+                                                        <button id={collection} onClick={handelDelete} className="btn btn-danger mr-10">Delete</button>
+                                                        <button id={collection} onClick={handelDownload} className="btn btn-success">Download</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>}
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" id={currentDB} onClick={handelDeleteDB} class="btn btn-outline-danger">Delete Database</button>
                                 </div>
                             </div>
                         </div>
@@ -180,6 +244,14 @@ function Home() {
                             <section className="file-upload">
                                 <h2><BsFiletypeCsv /></h2>
                                 <span>{seletedFileName} File Selected </span>
+                                <div>
+                                    <label htmlFor="">Select the database to upload :</label>
+                                    <select name="" id="" onChange={handelUserSelectedDB} value={userSelectedDB}>
+                                        {databases.map((database, i) => (
+                                            <option key={i} value={database}>{database}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </section>
                         }
                     </div>
@@ -188,7 +260,7 @@ function Home() {
                 </section>
             </div>
             <ToastContainer
-                autoClose={5000}
+                autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick

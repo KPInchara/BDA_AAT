@@ -39,7 +39,7 @@ body {
     margin: 5px;
     margin-right: 0px;
 }
-.home-container-main-left select{
+/* .home-container-main-left select{
     width: 90%;
     padding: 4px;
     font-size: 22px;
@@ -48,7 +48,7 @@ body {
     text-align: center;
     font-weight:600 ;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+} */
 
 .home-container-main-left .collections{
     margin-top: 20px;
@@ -64,6 +64,19 @@ body {
     font-weight: 500;
     text-transform: capitalize;
     height: 72%;
+    overflow-y: auto;
+}
+.home-container-main-left .db-form{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    width: 100%;
+}
+.home-container-main-left .db-form input{
+   
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding-left: 8px;
 }
 .collections ul{
     width: 100%;
@@ -117,7 +130,7 @@ body {
 }
 
 .dropbox{
-    margin-top: 50px;
+    margin-top: 20px;
     background:white;
     height: 60%;
     border-radius: 50px;
@@ -150,4 +163,16 @@ body {
     font-weight: 900;
     letter-spacing: 1px;
     padding: 2px;
+}
+.home-container-main-right .file-upload select{
+    width: 90%;
+    padding: 4px;
+    font-size: 24px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    font-weight:600 ;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
