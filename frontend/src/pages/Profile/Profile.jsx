@@ -1,10 +1,237 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from '../../components/Navbar'
-
+import axios from "axios"
+import "./Profile.css"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 function Profile() {
+  const states_in_india = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Lakshadweep",
+    "Delhi",
+    "Puducherry"
+  ]
+  const animatedComponents = makeAnimated();
+  const [modifiedFields, setModifiedFields] = useState(new Set());
+  const userData = localStorage.getItem("user")
+  const [user, setuser] = useState({
+    id: 1,
+    username: "Inchara",
+    firstName: "Inchara",
+    lastName: "K P",
+    password: "ksksks",
+    email: "inchara@gmail.com",
+    contactNumber: 123456789,
+    address: "abcc",
+    city: "Bangalore",
+    state: "Karnataka",
+    img: "",
+    skills: [
+      { value: 'html', label: 'HTML' },
+      { value: 'css', label: 'CSS' },
+    ]
+  })
+  const [selectedSkills, setSelectedSkills] = useState(user.skills);
+  const skillsOptions = [
+    { value: 'html', label: 'HTML' },
+    { value: 'css', label: 'CSS' },
+    { value: 'js', label: 'JavaScript' },
+    { value: "react", label: "React" }
+  ];
+  const [loading, setloading] = useState(false)
+  const notify = (type, msg) => {
+    if (type === 'success') {
+      toast.success(msg, {
+        position: "bottom-center"
+      })
+    }
+    if (type === "error") {
+      toast.error(msg, {
+        position: "bottom-center"
+      })
+    }
+    if (type === "info") {
+      toast.info(msg, {
+        position: "bottom-center"
+      })
+    }
+  };
+  const [isChecked, setIsChecked] = useState(false);
+  const handelLogout = () => {
+    sessionStorage.removeItem("user")
+    window.location.href = "/signin"
+  }
+  const handelUserDataChange = (e) => {
+    setuser((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setModifiedFields((prevFields) => prevFields.add(e.target.name));
+  }
+  const handleUserSkillsChange = (selectedOptions) => {
+    setSelectedSkills(selectedOptions);
+    setuser((prev) => ({ ...prev, skills: selectedOptions }));
+    setModifiedFields((prevFields) => prevFields.add("skills"));
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setloading(true)
+    const modifiedData = {};
+    modifiedFields.forEach((field) => {
+      modifiedData[field] = user[field];
+    });
+    console.log('Modified form data:', modifiedData);
+    try {
+      const response = await axios.put(`http://127.0.0.1:5000/updateProfile?id=${user.id}`, modifiedData)
+      console.log(response.data);
+      if (response.status === 0) {
+        sessionStorage.setItem("user", response.data)
+        notify("success", "Succesfully updated data")
+        setloading(false)
+      }
+    } catch (error) {
+      console.log(error);
+      notify("error", "Failed to update the data")
+      setloading(false)
+    }
+  }
+  const handleCheckboxChange = (event) => {
+    setIsChecked(event.target.checked);
+  };
   return (
-    <div>
-      <Navbar/>
+    <div className='profile'>
+      <Navbar />
+      <div className="profile-container-bg"></div>
+      <div className="profile-container-main">
+        <section className='profile-container-left'>
+          <div className="profile-image">
+            {user.img ?
+              <img src={user.img} alt="" srcset="" /> :
+              <img src="/images/deafult-profile-tag.png" alt="" srcset="" />
+            }
+            <h1>{user.username}</h1>
+            <div>
+              <div className="mb-2">
+                <label class="form-label">Email</label>
+                <input value={user.email} disabled class="form-control" />
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Password</label>
+                <input id='password' type={isChecked ? "text" : "password"} onChange={handelUserDataChange} class="form-control" value={user.password} disabled />
+                <div id='password-checkbox' class="form-check">
+                  <input type="checkbox" checked={isChecked} onChange={handleCheckboxChange} class="form-check-input" />
+                  <label class="form-check-label" >Show Password</label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <button type="button" onClick={handelLogout} class="btn btn-danger">Logout</button>
+        </section>
+        <section className='profile-container-right'>
+          <div className='user-data'>
+            <form onSubmit={handleSubmit}>
+              <div className="user">
+                <div class="mb-3">
+                  <label class="form-label">First Name</label>
+                  <input type="text" onChange={handelUserDataChange} value={user.firstName} name="firstName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" >Last Name</label>
+                  <input type="text" onChange={handelUserDataChange} value={user.lastName} name="lastName" class="form-control" />
+                </div>
+              </div>
+              <div className="user">
+                <div class="mb-3">
+                  <label class="form-label">User Name</label>
+                  <input type="text" onChange={handelUserDataChange} value={user.username} name="username" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Contact Number</label>
+                  <input type="number" onChange={handelUserDataChange} value={user.contactNumber} name="contactNumber" class="form-control" />
+                </div>
+              </div>
+              <div class="form-floating mb-3">
+                <label for="floatingTextarea">Address</label>
+                <textarea class="form-control" onChange={handelUserDataChange} value={user.address} name="address" id="floatingTextarea"></textarea>
+              </div>
+              <div className="user">
+                <div class="mb-3">
+                  <label class="form-label">City</label>
+                  <input type="text" onChange={handelUserDataChange} value={user.city} name="city" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">State</label>
+                  <select class="form-control" value={user.state} onChange={handelUserDataChange} name="state" id="">
+                    {states_in_india.map((state, id) => (
+                      <option value={state} name={state} key={id}>{state}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="mb-3">
+                <label class="form-label">Skills</label>
+                <Select
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  defaultValue={selectedSkills.map((skill,i)=>(user.skills[i]))}
+                  isMulti
+                  options={skillsOptions}
+                  onChange={handleUserSkillsChange}
+                />
+              </div>
+              {loading ?
+                <button class="btn btn-primary" type="button" disabled>
+                  <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+                  <span role="status">Updating please wait...</span>
+                </button> :
+                <button type="submit" class="btn btn-secondary">Update</button>
+              }
+
+            </form>
+          </div>
+        </section>
+      </div>
+      <ToastContainer
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   )
 }

@@ -22,7 +22,6 @@ def connect_to_mongodb():
 db_connection = connect_to_mongodb()
 if db_connection is not None:
     print("Connected to MongoDB successfully!")
-    collection = db_connection ['Kannada']
 else:
     print("Failed to connect to MongoDB.")
 
@@ -66,20 +65,23 @@ def upload_file():
 
         # Convert the data to a list of dictionaries for MongoDB insertion
         data_list = data.to_dict(orient='records')
-        
+        database_name = request.args.get('db')
+
         # db_connection.create_collection( os.path.splitext(file.filename)[0])
         # new_collection=db_connection[ os.path.splitext(file.filename)[0]]
         # result = new_collection.insert_many(data_list)    
         try:
-            existing_collections = get_all_collections("BDA")
-            if os.path.splitext(file.filename)[0] in existing_collections:
-                new_collection=db_connection[ os.path.splitext(file.filename)[0]]
+            existing_collections = get_all_collections(database_name)
+            print(existing_collections)
+            use_db=client[database_name]
+            if os.path.splitext(file.filename)[0] in existing_collections:               
+                new_collection=use_db[ os.path.splitext(file.filename)[0]]
                 result = new_collection.insert_many(data_list)
                 #os.remove(file_path)        
                 return jsonify({"data":f"uploaded to database for existing'{os.path.splitext(file.filename)[0]}' collection"}), 200
             else:
-                db_connection.create_collection( os.path.splitext(file.filename)[0])
-                new_collection=db_connection[ os.path.splitext(file.filename)[0]]
+                use_db.create_collection( os.path.splitext(file.filename)[0])
+                new_collection=use_db[ os.path.splitext(file.filename)[0]]
                 result = new_collection.insert_many(data_list)
                 #os.remove(file_path)        
                 return jsonify({"data":f"uploaded to database for '{os.path.splitext(file.filename)[0]}' collection"}), 200
@@ -118,7 +120,8 @@ def download_file():
 @app.route('/databaseNames', methods=['GET'])
 def get_lists():
     databaseNames= get_all_databases()
-    return jsonify({"databaseNames":databaseNames}),200
+    filtered_databaseNames = [item for item in databaseNames if item not in ['admin', 'local']]
+    return jsonify({"databaseNames":filtered_databaseNames}),200
 
 @app.route('/get_collections', methods=['GET'])
 def get_collections():
@@ -139,8 +142,38 @@ def delete_collection():
     except Exception as e:
        return "failed to delete",400
     
+@app.route('/createDB', methods=['POST'])
+def create_db():
+    database_name = request.args.get('db')
+    collection_name=request.args.get("collection")
+    try:
+        #new_db=client[database_name]
+        existing_dbs=get_all_databases()
+        
+        #use_db=client[database_name]
+        if database_name in existing_dbs:
+            return "Database Alerdy Exist",200
+        else:
+            new_db=client[database_name]
+            #new_collection=new_db.create_collection(collection_name)
+            use_collection=new_db[collection_name]
+            # Insert dummy data into the collection
+            data = {"name": "nimhans", "email": "nimhans@gmail.com"}
+            inserted_id =use_collection.insert_one(data).inserted_id
+            return f"Created {collection_name} collection in {database_name} database",200
+    except Exception as e:
+        print(e)
+        return "Failed to create database",400
 
-
+@app.route("/delete_database",methods=["DELETE"])
+def delete_database():
+    database_name = request.args.get('db')
+    try:
+        client.drop_database(database_name)
+        return f"{database_name} deleted succesfully",200
+    except Exception as e:
+        print(e)
+        return "failed to delete",400
 
 
 

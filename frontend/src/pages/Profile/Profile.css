@@ -1,0 +1,103 @@
+body {
+    overflow: hidden;
+}
+
+.profile-container-bg {
+    position: absolute;
+    width: 538.03px;
+    height: 2678.58px;
+    left: 717.45px;
+    top: -759.84px;
+    background: linear-gradient(246.63deg, #49E2B3 0%, #1D576D 71.15%, #110E3D 100%);
+    transform: rotate(-55.88deg);
+    z-index: -1;
+}
+
+.profile-container-main {
+    margin: 0.5rem 0.5rem 1rem 0.5rem;
+    z-index: 1;
+    display: flex;
+    height: 89vh;
+    overflow: auto;
+    width: 99%;
+    justify-content: space-between;
+    left: calc(50% - 1453px/2 - 2px);
+    top: calc(50% - 897px/2 + 16.5px);
+    background: rgba(145, 255, 221, 0.67);
+    box-shadow: 0px 0px 28px 6px rgba(0, 0, 0, 0.25);
+}
+
+.profile-container-left{
+    margin: 1.5rem;
+    width: 30%;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    border-radius: 25px;
+    background: white;
+    box-shadow:4px 6px 4px #59585a;
+    height: 92%;
+    overflow: hidden;
+}
+.profile-container-left .profile-image{
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.profile-container-left .profile-image img{
+    height: 15rem;
+    border-radius: 0.8rem;
+    border: 1px solid white;
+    width: 80%;
+    margin-top: 8px;
+}
+.profile-container-left .profile-image h1{
+    font-size: 45px;
+    font-family: monospace;
+    font-weight: 900;
+    text-transform: capitalize;
+    padding: 4px;
+    width: 100%;
+    text-align: center;
+    color: #111212;
+}
+.profile-container-right{
+    border-left: 1px solid black;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background:white;
+    margin: 20px;
+    margin-left: 0px;
+    box-shadow:4px 6px 4px #59585a;
+    border-radius: 18px;
+    align-items: center;
+}
+.profile-container-right .user-data{
+    width: 80%;
+}
+.profile-container-right label{
+    font-weight: 600;
+    font-size: 22px;
+    
+}
+.profile-container-left #password-checkbox{
+    margin-top: 8px;
+    margin-left: 8px;
+}
+.profile-container-left #password-checkbox label{
+    font-size: 14px;
+    font-weight: 500;
+}
+.profile-container-left #password-checkbox input{
+    margin-top: 6px;
+    cursor: pointer;
+}
+.profile-container-right .user{
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 15px;
+}
