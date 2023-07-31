@@ -175,9 +175,11 @@ def delete_database():
         print(e)
         return "failed to delete",400
 
-
-
-
+@app.route('/updateUser', methods=['POST'])
+def update_user():
+    database_name = request.args.get('db')
+    collection_name=request.args.get("collection")
+    user_id=request.args.get("id")
 
 
 
