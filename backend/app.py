@@ -120,7 +120,7 @@ def download_file():
 @app.route('/databaseNames', methods=['GET'])
 def get_lists():
     databaseNames= get_all_databases()
-    filtered_databaseNames = [item for item in databaseNames if item not in ['admin', 'local']]
+    filtered_databaseNames = [item for item in databaseNames if item not in ['admin', 'local','users']]
     return jsonify({"databaseNames":filtered_databaseNames}),200
 
 @app.route('/get_collections', methods=['GET'])
@@ -175,13 +175,41 @@ def delete_database():
         print(e)
         return "failed to delete",400
 
+#USER OPERATIONS note to store user data we use users database and collection name is users_data
+@app.route("/createUser",methods=["POST"])
+def create_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    
+    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password'):
+        return jsonify({'error': 'All fields (username, email, password) are required.'}), 400
+    
+    isUser=collection_name.find_one({'email': request.form.get('email')})
+    if(isUser):
+        return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
 
+    try:
+        collection_name.insert_one(request.form.to_dict()).inserted_id
+        user_data=user_info(request.form.get('email'))
+        return user_data, 201
+    except Exception as e:
+        print(e)
+        return "failed to create",400
 
+def user_info(useremail):
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    user = collection_name.find_one({'email': useremail})
+    if user:
+        user.pop('_id', None)
+        return jsonify(user)
+    else:
+        return jsonify({'error': 'User not found.'}), 404
 
-
-
-
-
+@app.route("/getUser",methods=["GET"])
+def get_user():
+    return user_info(request.args.get('useremail')),200
+    
 
 
 

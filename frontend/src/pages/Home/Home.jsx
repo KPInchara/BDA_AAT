@@ -18,6 +18,7 @@ function Home() {
     const [loading, setloading] = useState(false)
     const [createDBName, setcreateDBName] = useState(null)
     const [createCollection, setcreateCollection] = useState(null)
+    const [uploading, setuploading] = useState(false)
     useEffect(() => {
         fetchDataBaseNames();
     }, []);
@@ -96,10 +97,11 @@ function Home() {
     //console.log(process.env.REACT_APP_BASE_URL);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
     const handelUploadFile = async () => {
-        if(userSelectedDB === null){ 
-            notify("info","Please select the database")
-            return 
+        if (userSelectedDB === null) {
+            notify("info", "Please select the database")
+            return
         }
+        setuploading(true)
         try {
             const formData = new FormData();
             formData.append("file", selectedFile);
@@ -113,12 +115,14 @@ function Home() {
                 notify("success", `${seletedFileName} Uploaded Sucessfully`)
                 setselectedFile(null)
                 setseletedFileName(null)
+                setuploading(false)
             }
         } catch (error) {
             console.log(error);
             notify("error", `${seletedFileName} Failed to Upload`)
             setselectedFile(null)
             setseletedFileName(null)
+            setuploading(false)
         }
     }
     const handelViewModal = async (e) => {
@@ -160,17 +164,17 @@ function Home() {
             notify("error", "failed to create database,try again")
         }
     }
-    const handelDeleteDB=async(e)=>{
+    const handelDeleteDB = async (e) => {
         try {
-            const response=await axios.delete(`http://127.0.0.1:5000/delete_database?db=${e.target.id}`)
-            if(response.status===200){
-                notify("success",response.data)
+            const response = await axios.delete(`http://127.0.0.1:5000/delete_database?db=${e.target.id}`)
+            if (response.status === 200) {
+                notify("success", response.data)
                 fetchDataBaseNames()
-                window.location.href="/"
+                window.location.href = "/"
             }
         } catch (error) {
             console.log(error);
-            notify("error",`Failed to delete ${e.target.id} database`)
+            notify("error", `Failed to delete ${e.target.id} database`)
         }
     }
     return (
@@ -223,7 +227,7 @@ function Home() {
                                         </>}
                                 </div>
                                 <div class="modal-footer">
-                                <button type="button" id={currentDB} onClick={handelDeleteDB} class="btn btn-outline-danger">Delete Database</button>
+                                    <button type="button" id={currentDB} onClick={handelDeleteDB} class="btn btn-outline-danger">Delete Database</button>
                                 </div>
                             </div>
                         </div>
@@ -231,8 +235,8 @@ function Home() {
                 </section>
                 <section className="home-container-main-right">
                     <h1 className="m-2 p-2">Upload csv file</h1>
-                    <div className="dropbox" {...getRootProps()}>
-                        {selectedFile === null ?
+                    {selectedFile === null ?
+                        <div className="dropbox" {...getRootProps()}>
                             <section>
                                 <input {...getInputProps()} />
                                 {
@@ -240,7 +244,10 @@ function Home() {
                                         <p className="success">Drop the <BsFiletypeCsv /> files here ...</p> :
                                         <p>Drag and drop <BsFiletypeCsv /> file here, or click to select files</p>
                                 }
-                            </section> :
+                            </section>
+                        </div>
+                        :
+                        <div className="dropbox">
                             <section className="file-upload">
                                 <h2><BsFiletypeCsv /></h2>
                                 <span>{seletedFileName} File Selected </span>
@@ -253,10 +260,18 @@ function Home() {
                                     </select>
                                 </div>
                             </section>
-                        }
-                    </div>
-                    {selectedFile && <button onClick={(e) => (setselectedFile(null), setseletedFileName(null))} type="button" class="btn btn-warning">Change</button>}
-                    {selectedFile && <button onClick={handelUploadFile} type="button" class="btn btn-info">Upload</button>}
+                        </div>
+                    }
+                    {uploading ?
+                        <Stack className="uploading-bar" sx={{ color: 'grey.800' }} spacing={2} direction="row">
+                            <CircularProgress color="success" /><span>Uploading.....</span>
+                        </Stack>
+                        :
+                        <>
+                            {selectedFile && <button onClick={(e) => (setselectedFile(null), setseletedFileName(null))} type="button" class="btn btn-warning">Change</button>}
+                            {selectedFile && <button onClick={handelUploadFile} type="button" class="btn btn-info">Upload</button>}
+                        </>
+                    }
                 </section>
             </div>
             <ToastContainer
