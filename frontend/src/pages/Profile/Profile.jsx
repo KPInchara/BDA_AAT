@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react'
-import Navbar from '../../components/Navbar'
+import Navbar from '../../components/Navbar/Navbar.jsx'
 import axios from "axios"
 import "./Profile.css"
 import { ToastContainer, toast } from 'react-toastify';

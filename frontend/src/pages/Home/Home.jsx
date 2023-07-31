@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react"
 import axios from "axios"
 import './Home.css';
-import Navbar from "../../components/Navbar";
+import Navbar from "../../components/Navbar/Navbar.jsx";
 import { useDropzone } from 'react-dropzone'
 import { BsFiletypeCsv, BsFillDatabaseFill } from 'react-icons/bs'
 import { ToastContainer, toast } from 'react-toastify';
