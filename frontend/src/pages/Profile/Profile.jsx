@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '../../components/Navbar/Navbar.jsx'
 import axios from "axios"
 import "./Profile.css"
@@ -8,6 +8,7 @@ import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 function Profile() {
   const userData = JSON.parse(localStorage.getItem("user"))
+  const [user_image, setuser_image] = useState(null)
   const states_in_india = [
     "Andhra Pradesh",
     "Arunachal Pradesh",
@@ -45,7 +46,8 @@ function Profile() {
     "Puducherry"
   ]
   useEffect(() => {
-    get_user()
+    //get_user()
+    get_image()
   }, [userData])
   const animatedComponents = makeAnimated();
   const [modifiedFields, setModifiedFields] = useState(new Set());
@@ -70,7 +72,7 @@ function Profile() {
     firstName: "Inchara",
     lastName: "K P",
     password: "userData.password",
-    email:" userData.email",
+    email: " userData.email",
     contactNumber: 123456789,
     address: "abcc",
     city: "Bangalore",
@@ -103,15 +105,36 @@ function Profile() {
       })
     }
   };
-  const get_user=async()=>{
+  const get_user = async () => {
     try {
-      const response=await axios.get(`http://127.0.0.1:5000/getUser?useremail=lava@gmail.coms`)
-      if(response.status==200){
-        localStorage.setItem("user",JSON.stringify(response.data))
+      const response = await axios.get(`http://127.0.0.1:5000/getUser?useremail=lavas @gmail.comssssss`)
+      if (response.status == 200) {
+        console.log(response);
+        //src="data:image/jpeg;base64,{{ response.data.image }}"
+        localStorage.setItem("user", JSON.stringify(response.data))
       }
-     } catch (error) {
+    } catch (error) {
       console.log(error);
-     }
+    }
+  }
+  const get_image = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:5000/getImage?useremail=lavas @gmail.comssssss`,
+      {
+        responseType: 'blob',
+        headers: {
+          Accept: 'image/*'
+        }
+    })
+      if (response.status == 200) {
+        console.log(response.data);
+        const imageURL = URL.createObjectURL(new Blob([response.data]));
+        setuser_image(imageURL)
+        localStorage.setItem("user", JSON.stringify(response.data))
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
   const [isChecked, setIsChecked] = useState(false);
   const handelLogout = () => {
@@ -159,9 +182,8 @@ function Profile() {
       <div className="profile-container-main">
         <section className='profile-container-left'>
           <div className="profile-image">
-            {user.img ?
-              <img src={user.img} alt="" srcset="" /> :
-              <img src="/images/deafult-profile-tag.png" alt="" srcset="" />
+            {user_image===null ?
+              <img src="/images/deafult-profile-tag.png" alt="" srcset="" />: <img src={user_image} alt="" srcset="" /> 
             }
             <h1>{user.username}</h1>
             <div>
@@ -228,7 +250,7 @@ function Profile() {
                 <Select className='skills'
                   closeMenuOnSelect={false}
                   components={animatedComponents}
-                  defaultValue={selectedSkills.map((skill,i)=>(user.skills[i]))}
+                  defaultValue={selectedSkills.map((skill, i) => (user.skills[i]))}
                   isMulti
                   options={skillsOptions}
                   onChange={handleUserSkillsChange}
