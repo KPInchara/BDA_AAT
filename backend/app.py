@@ -41,11 +41,7 @@ app = Flask(__name__)
 CORS(app)
 
 #ROUTES
-@app.route('/', methods=['GET'])
-def get_data():
-    return jsonify("hi")
-
-
+#DATABASE CRD OPERATION
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -66,11 +62,7 @@ def upload_file():
 
         # Convert the data to a list of dictionaries for MongoDB insertion
         data_list = data.to_dict(orient='records')
-        database_name = request.args.get('db')
-
-        # db_connection.create_collection( os.path.splitext(file.filename)[0])
-        # new_collection=db_connection[ os.path.splitext(file.filename)[0]]
-        # result = new_collection.insert_many(data_list)    
+        database_name = request.args.get('db') 
         try:
             existing_collections = get_all_collections(database_name)
             print(existing_collections)
@@ -144,7 +136,7 @@ def delete_collection():
        return "failed to delete",400
     
 @app.route('/createDB', methods=['POST'])
-def create_db():
+def create_db(): 
     database_name = request.args.get('db')
     collection_name=request.args.get("collection")
     try:
@@ -159,7 +151,7 @@ def create_db():
             #new_collection=new_db.create_collection(collection_name)
             use_collection=new_db[collection_name]
             # Insert dummy data into the collection
-            data = {"name": "nimhans", "email": "nimhans@gmail.com"}
+            data = {"name": "bda", "email": "bda@gmail.com"}
             inserted_id =use_collection.insert_one(data).inserted_id
             return f"Created {collection_name} collection in {database_name} database",200
     except Exception as e:
@@ -176,9 +168,8 @@ def delete_database():
         print(e)
         return "failed to delete",400
 
-    
-    
-@app.route('/update-user', methods=['PUT'])
+#USER OPERATIONS note to store user data we use users database and collection name is users_dataB2Ṇ    
+@app.route('/update_user', methods=['PUT'])
 def update_user():
     user_database=client["users"]
     collection_name=user_database["users_data"]
@@ -194,9 +185,6 @@ def update_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-#USER OPERATIONS note to store user data we use users database and collection name is users_data
 @app.route("/createUser",methods=["POST"])
 def create_user():
     user_database=client["users"]
