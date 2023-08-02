@@ -1,8 +1,9 @@
 import React from 'react'
 import {BiLogOut} from "react-icons/bi"
+import "./Navbar.css"
 function Navbar() {
     const handelLogout=()=>{
-        sessionStorage.removeItem("user")
+        localStorage.removeItem("user")
         window.location.href="/signin"
     }
   return (

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request,send_file
+from flask import Flask, jsonify, request,send_file,Response
 from flask_cors import CORS
 from pymongo import MongoClient
 import os
@@ -6,7 +6,8 @@ import pandas as pd
 import requests
 import json
 from bson import json_util
-
+import base64
+from io import BytesIO
 #Connect to MongoDB
 client=None
 def connect_to_mongodb():
@@ -120,7 +121,7 @@ def download_file():
 @app.route('/databaseNames', methods=['GET'])
 def get_lists():
     databaseNames= get_all_databases()
-    filtered_databaseNames = [item for item in databaseNames if item not in ['admin', 'local']]
+    filtered_databaseNames = [item for item in databaseNames if item not in ['admin', 'local','users']]
     return jsonify({"databaseNames":filtered_databaseNames}),200
 
 @app.route('/get_collections', methods=['GET'])
@@ -175,15 +176,64 @@ def delete_database():
         print(e)
         return "failed to delete",400
 
+#USER OPERATIONS note to store user data we use users database and collection name is users_data
+@app.route("/createUser",methods=["POST"])
+def create_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    
+    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password'):
+        return jsonify({'error': 'All fields (username, email, password) are required.'}), 400
+    
+    isUser=collection_name.find_one({'email': request.form.get('email')})
+    if(isUser):
+        return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
+    image_data = request.files['image'].read()
+    encoded_image = base64.b64encode(image_data).decode() 
+    user_info={**request.form.to_dict(), "image":encoded_image }
+    try:
+        user_id=collection_name.insert_one(user_info).inserted_id
+        if(user_id):
+            user_data=get_user_info(request.form.get('email'))
+            return user_data, 201
+    except Exception as e:
+        print(e)
+        return "failed to create",400
 
+def get_user_info(useremail):
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    try:
+        user = collection_name.find_one({'email': useremail})
+        if user and "image" in user:
+            user.pop('_id', None)
+            user.pop("image",None)
+            return user
+        else:
+            return jsonify({'error': 'User not found.'}), 404
+    except Exception as e:
+        print(e)
+        return "failed to get data",400
 
+@app.route("/getUser",methods=["GET"])
+def get_user():
+    try:
+        return get_user_info(request.args.get('useremail')),200
+    except Exception as e:
+        return "Failed to fetch user data",400
+    
 
-
-
-
-
-
-
+@app.route("/getImage",methods=["GET"])
+def get_image():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    try:
+        user = collection_name.find_one({'email': request.args.get('useremail')})
+        if user and "image" in user:
+            decoded_image = base64.b64decode(user["image"])
+            return send_file(BytesIO(decoded_image), mimetype='image/jpeg'),200
+    except Exception as e:
+        return "failed to get user image",400
 
 
 
