@@ -176,6 +176,26 @@ def delete_database():
         print(e)
         return "failed to delete",400
 
+    
+    
+@app.route('/update-user', methods=['PUT'])
+def update_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"]
+    try:
+        # Perform the update in the database
+        print(request.form.to_dict())
+        collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
+        user = collection_name.find_one({'email': request.args.get("email")})
+        if(user):
+            user.pop("_id",None)
+            user.pop("image",None)
+            return jsonify({"user_data":user,"message":f"{request.args.get('email')} data updated successfully"}),200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 #USER OPERATIONS note to store user data we use users database and collection name is users_data
 @app.route("/createUser",methods=["POST"])
 def create_user():
@@ -234,6 +254,7 @@ def get_image():
             return send_file(BytesIO(decoded_image), mimetype='image/jpeg'),200
     except Exception as e:
         return "failed to get user image",400
+
 
 
 
