@@ -1,56 +1,40 @@
 import React, { Component, useState } from "react";
 import './Signup.css';
-
+import axios from "axios"
 export default function Signup() {
   const [Username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState("");
-  const [secretKey, setSecretKey] = useState("");
 
-  const handleSubmit = (e) => {
-    if (userType == "Admin" && secretKey != "Inchara") {
+  const handleSubmit = async(e) => {
       e.preventDefault();
-      alert("Invalid Admin");
-    } else {
-      e.preventDefault();
-
-
-      console.log(Username, email, password);
-      fetch("http://localhost:3000/Signin", {
-        method: "POST",
-        crossDomain: true,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          Username,
-          email,
-          password,
-          userType,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data, "userRegister");
-          if (data.status == "ok") {
-            alert("Registration Successful");
-          } else {
-            alert("Something went wrong");
-          }
-        });
-    }
+      if(Username.length===0 || email.length===0 || password.length<=7) return alert("Please enter correct details") 
+      const formData = new FormData();
+      formData.append("username", Username);
+      formData.append("email", email);
+      formData.append("password", password);
+      try {
+        const response=await axios.post("http://127.0.0.1:5000/createUser",formData)
+        if(response.data){
+          localStorage.setItem("user",JSON.stringify(response.data))
+          alert("Registration Succesfully done")
+          window.location.href="/"
+        }
+      } catch (error) {
+        console.log(error);
+        alert(error.response.data.error)
+        window.location.href="/signup"
+      }
   };
 
   return (
-    <div className="auth-wrapper">
+ <div>
+  <div className="signup-container-bg"></div>
+  <div className="signup-container-main">
+  <div className="auth-wrapper">
       <div className="auth-inner">
+      <h3>Sign Up</h3>        
         <form onSubmit={handleSubmit}>
-          <h3>Sign Up</h3>
-          
-
           <div className="mb-3">
             <label> Username</label>
             <input
@@ -92,5 +76,7 @@ export default function Signup() {
         </form>
       </div>
     </div>
+  </div>
+ </div>
   );
 }
