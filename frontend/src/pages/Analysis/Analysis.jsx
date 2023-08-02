@@ -1,6 +1,6 @@
 import React from 'react'
 import "./Analysis.css"
-import Navbar from "../../components/Navbar";
+import Navbar from "../../components/Navbar/Navbar.jsx";
 function Analysis() {
   return (
     <div className='analysis'>
