@@ -176,35 +176,19 @@ def delete_database():
         return "failed to delete",400
     
     
-@app.route('/update-user/<user_id>', methods=['PUT'])
-def update_user(user_id):
-    database_name = request.args.get('db')
-    collection_name=request.args.get("collection")
-    user_id=request.args.get("id")
+@app.route('/update-user', methods=['PUT'])
+def update_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"]
     try:
-        # Get the updated data from the request JSON
-        data = request.get_json()
-
-        # Find the user by user_id in the MongoDB collection
-        user = collection_name.find_one({'_id': user_id})
-
-        if user:
-            # Update the user data with the new values
-            updated_user = {
-                'name': data.get('name', user['name']),
-                'email': data.get('email', user['email']),
-                'age': data.get('age', user['age']),
-                # Add more fields if needed
-            }
-
-            # Perform the update in the database
-            collection_name.update_one({'_id': user_id}, {'$set': updated_user})
-
-            return jsonify({'message': 'User updated successfully'})
-
-        else:
-            return jsonify({'message': 'User not found'}), 404
-
+        # Perform the update in the database
+        print(request.form.to_dict())
+        collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
+        user = collection_name.find_one({'email': request.args.get("email")})
+        if(user):
+            user.pop("_id",None)
+            user.pop("image",None)
+            return jsonify({"user_data":user,"message":f"{request.args.get('email')} data updated successfully"}),200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
