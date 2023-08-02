@@ -8,6 +8,7 @@ import json
 from bson import json_util
 import base64
 from io import BytesIO
+from prosody import prosody_output
 #Connect to MongoDB
 client=None
 def connect_to_mongodb():
@@ -41,10 +42,6 @@ app = Flask(__name__)
 CORS(app)
 
 #ROUTES
-@app.route('/', methods=['GET'])
-def get_data():
-    return jsonify("hi")
-
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -234,8 +231,37 @@ def get_image():
             return send_file(BytesIO(decoded_image), mimetype='image/jpeg'),200
     except Exception as e:
         return "failed to get user image",400
+#prosody call
+@app.route("/predictSentence",methods=["POST"])
+def send_prosody_output():
+    text=request.form.get("key")
+    try:
+        user_database=client["users"]
+        dataset_collection=user_database["Kannada_Senetences_Label"] 
+        dataset = dataset_collection.find()
+        df = pd.DataFrame(dataset)
+        csv_file_path = os.path.join(r"C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
+        df.to_csv(csv_file_path, index=False)
+        print("saved")
+        result=prosody_output(text)
+        return jsonify({"type":result}),200
+    except Exception as e:
+        return "failed to detect",400
 
-
-
+@app.route("/getCounts",methods=["GET"])
+def get_prosody_count():
+    user_database=client["users"]
+    dataset_collection=user_database["Kannada_Senetences_Label"] 
+    text_field = {"text": {"$exists": True, "$ne": ""}}
+ 
+    # Count the number of documents with the specified text field
+    try:
+        text_count = dataset_collection.count_documents(text_field)
+        emotion_count=dataset_collection.count_documents({"type":"EMOTION"})
+        noemotion_count=dataset_collection.count_documents({"type":"NOEMOTION"}) 
+        return jsonify({"emotion_count":emotion_count,"noemotion_count":noemotion_count,"text_count":text_count}),200
+    except Exception as e:
+        return "Failed to get prosody data",400
+    
 if __name__ == '__main__':    
     app.run(debug=True)
