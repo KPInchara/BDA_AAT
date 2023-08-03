@@ -198,6 +198,7 @@ def create_user():
     isUser=collection_name.find_one({'email': request.form.get('email')})
     if(isUser):
         return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
+    print(request.files['image'])
     image_data = request.files['image'].read()
     encoded_image = base64.b64encode(image_data).decode() 
     user_info={**request.form.to_dict(), "image":encoded_image }
@@ -224,7 +225,30 @@ def get_user_info(useremail):
     except Exception as e:
         print(e)
         return "failed to get data",400
-
+    
+@app.route("/login",methods=["POST"])
+def login_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    data = request.json    
+    try:
+        if 'email' in data and 'password' in data:
+            email = data['email']
+            password = data['password']
+            user = collection_name.find_one({'email': email})
+            if user and "image" in user:
+                if(user['password']== password):
+                    user.pop('_id', None)
+                    user.pop("image",None)
+                    return jsonify({'message': 'Login successful',"user":user})
+                else:
+                    return jsonify({'message': 'incorrect password or email'})
+            else:
+                return jsonify({'message': 'User Not found'})
+        else:
+            return jsonify({'message': 'Invalid request. Missing email or password.'}), 400
+    except Exception as e:
+        return jsonify({"error":"failed to login"}),400
 @app.route("/getUser",methods=["GET"])
 def get_user():
     try:

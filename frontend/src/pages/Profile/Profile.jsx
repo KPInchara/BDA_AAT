@@ -8,6 +8,7 @@ import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 function Profile() {
   const userData = JSON.parse(localStorage.getItem("user"))
+  const imageurl=JSON.parse(localStorage.getItem("image"))
   const [user_image, setuser_image] = useState(null)
   const states_in_india = [
     "Andhra Pradesh",
@@ -47,39 +48,41 @@ function Profile() {
   ]
   useEffect(() => {
     //get_user()
-    get_image()
+    //get_image()
   }, [userData])
   const animatedComponents = makeAnimated();
   const [modifiedFields, setModifiedFields] = useState(new Set());
+  const [user, setuser] = useState({
+    username: userData?.username || "",
+    firstName:userData?.firstName || "",
+    lastName: userData?.lastName || "",
+    password: userData?.password || "",
+    email: userData?.email || "",
+    contactNumber: userData?.contactNumber || "",
+    address: userData?.address || "",
+    city: userData?.city || "",
+    state: userData?.state || "",
+    img:imageurl|| "",
+    skills: 
+      // userData?.skills.map(e=>(
+      //   { value: e, label: e }
+      // )) ||
+       []
+  })
+  console.log(imageurl);
   // const [user, setuser] = useState({
-  //   username: userData.username,
+  //   username: "userData.username",
   //   firstName: "Inchara",
   //   lastName: "K P",
-  //   password: userData.password,
-  //   email: userData.email,
+  //   password: "userData.password",
+  //   email: " userData.email",
   //   contactNumber: 123456789,
   //   address: "abcc",
   //   city: "Bangalore",
   //   state: "Karnataka",
   //   img: "",
-  //   skills: 
-  //     userData?.skills.map(e=>(
-  //       { value: e, label: e }
-  //     ))
+  //   skills: []
   // })
-  const [user, setuser] = useState({
-    username: "userData.username",
-    firstName: "Inchara",
-    lastName: "K P",
-    password: "userData.password",
-    email: " userData.email",
-    contactNumber: 123456789,
-    address: "abcc",
-    city: "Bangalore",
-    state: "Karnataka",
-    img: "",
-    skills: []
-  })
   const [selectedSkills, setSelectedSkills] = useState(user.skills);
   const skillsOptions = [
     { value: 'html', label: 'HTML' },
@@ -107,7 +110,7 @@ function Profile() {
   };
   const get_user = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/getUser?useremail=lavas @gmail.comssssss`)
+      const response = await axios.get(`http://127.0.0.1:5000/getUser?useremail=${userData.email}`)
       if (response.status == 200) {
         console.log(response);
         //src="data:image/jpeg;base64,{{ response.data.image }}"
@@ -117,25 +120,25 @@ function Profile() {
       console.log(error);
     }
   }
-  const get_image = async () => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:5000/getImage?useremail=lavas @gmail.comssssss`,
-      {
-        responseType: 'blob',
-        headers: {
-          Accept: 'image/*'
-        }
-    })
-      if (response.status == 200) {
-        console.log(response.data);
-        const imageURL = URL.createObjectURL(new Blob([response.data]));
-        setuser_image(imageURL)
-        localStorage.setItem("user", JSON.stringify(response.data))
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // const get_image = async () => {
+  //   try {
+  //     const response = await axios.get(`http://127.0.0.1:5000/getImage?useremail=lavas @gmail.comssssss`,
+  //     {
+  //       responseType: 'blob',
+  //       headers: {
+  //         Accept: 'image/*'
+  //       }
+  //   })
+  //     if (response.status == 200) {
+  //       console.log(response.data);
+  //       const imageURL = URL.createObjectURL(new Blob([response.data]));
+  //       setuser_image(imageURL)
+  //       localStorage.setItem("user", JSON.stringify(response.data))
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   const [isChecked, setIsChecked] = useState(false);
   const handelLogout = () => {
     sessionStorage.removeItem("user")
@@ -159,7 +162,7 @@ function Profile() {
     });
     console.log('Modified form data:', modifiedData);
     try {
-      const response = await axios.put(`http://127.0.0.1:5000/updateProfile?id=${userData.email}`, modifiedData)
+      const response = await axios.put(`http://127.0.0.1:5000/update_user?email=${userData.email}`, modifiedData)
       console.log(response.data);
       if (response.status === 0) {
         sessionStorage.setItem("user", response.data)
