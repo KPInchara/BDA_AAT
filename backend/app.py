@@ -178,12 +178,14 @@ def update_user():
     try:
         # Perform the update in the database
         print(request.form.to_dict())
-        collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
+        updated_user=collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
+        print(updated_user)
         user = collection_name.find_one({'email': request.args.get("email")})
+        
         if(user):
             user.pop("_id",None)
             user.pop("image",None)
-            return jsonify({"user_data":user,"message":f"{request.args.get('email')} data updated successfully"}),200
+            return jsonify({"user":user,"message":f"{request.args.get('email')} data updated successfully"}),200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -192,21 +194,30 @@ def create_user():
     user_database=client["users"]
     collection_name=user_database["users_data"] 
     
-    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password'):
-        return jsonify({'error': 'All fields (username, email, password) are required.'}), 400
+    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password') or not request.files['image']:
+        return jsonify({'error': 'All fields (username, email, password,image) are required.'}), 400
     
     isUser=collection_name.find_one({'email': request.form.get('email')})
     if(isUser):
         return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
-    print(request.files['image'])
+  
+    #image_data = request.form['image']
+    #image_data = request.form.get('image').read()
+    # print(request.files['image'])
+    # print(request.form)
     image_data = request.files['image'].read()
     encoded_image = base64.b64encode(image_data).decode() 
     user_info={**request.form.to_dict(), "image":encoded_image }
+    #user_info={**request.form.to_dict()}
     try:
         user_id=collection_name.insert_one(user_info).inserted_id
         if(user_id):
-            user_data=get_user_info(request.form.get('email'))
-            return user_data, 201
+            user = collection_name.find_one({'_id': user_id})
+            if user :
+                user.pop('_id', None)
+                user.pop("image",None)
+                return jsonify(user) ,201
+            #return user_data, 201
     except Exception as e:
         print(e)
         return "failed to create",400
@@ -219,7 +230,7 @@ def get_user_info(useremail):
         if user and "image" in user:
             user.pop('_id', None)
             user.pop("image",None)
-            return user
+            return user 
         else:
             return jsonify({'error': 'User not found.'}), 404
     except Exception as e:
@@ -249,13 +260,23 @@ def login_user():
             return jsonify({'message': 'Invalid request. Missing email or password.'}), 400
     except Exception as e:
         return jsonify({"error":"failed to login"}),400
-@app.route("/getUser",methods=["GET"])
+@app.route("/getUser", methods=["GET"])
 def get_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
     try:
-        return get_user_info(request.args.get('useremail')),200
+        user = collection_name.find_one({'email': request.args.get('useremail')})
+        if user :
+            user.pop('_id', None)
+            user.pop("image",None)
+            return user 
+        else:
+            return jsonify({'error': 'User not found.'}), 404
     except Exception as e:
-        return "Failed to fetch user data",400
-    
+        print("error")
+        print(e)
+        return "Failed to fetch user data", 400
+ 
 
 @app.route("/getImage",methods=["GET"])
 def get_image():

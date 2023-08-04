@@ -26,9 +26,24 @@ export default function Signup() {
         if(response.data){
           localStorage.setItem("user",JSON.stringify(response.data))
           setloading(false)
-          alert("Registration Succesfully done")
+          try {
+            const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data["email"]}`,
+            {
+              responseType: 'blob',
+              headers: {
+                Accept: 'image/*'
+              }
+          })
+            if (image) {
+              const imageURL = URL.createObjectURL(new Blob([image.data]));
+              localStorage.setItem("image", JSON.stringify(imageURL))
+                alert("Registration Succesfully done")
           window.location.href="/"
-
+            }
+          } catch (error) {
+            alert("try again")
+            window.location.href="/signup"
+          }
         }
       } catch (error) {
         console.log(error);
@@ -46,7 +61,7 @@ export default function Signup() {
   <div className="auth-wrapper">
       <div className="auth-inner">
       <h3>Sign Up</h3>        
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}  enctype="multipart/form-data">
           <div className="mb-3">
             <label> Username</label>
             <input
@@ -79,6 +94,7 @@ export default function Signup() {
           <div className="mb-3">
             <label>Upload Image</label>
             <input
+              accept="images"
               type="file"
               className="form-control"
               placeholder="upload image"

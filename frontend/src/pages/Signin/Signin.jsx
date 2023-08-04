@@ -6,7 +6,7 @@ const Signin = () => {
     email: '',
     password: '',
   });
-const [loading, setloading] = useState(false)
+  const [loading, setloading] = useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -15,24 +15,26 @@ const [loading, setloading] = useState(false)
     }));
   };
 
-  const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formData);
     setloading(true)
     try {
-      const response=await axios.post("http://localhost:5000/login",formData)
+      const response = await axios.post("http://localhost:5000/login", formData)
+      console.log(response.data.user["email"]);
+
+      localStorage.setItem("user", JSON.stringify(response.data.user))
       console.log(response);
-      
-      localStorage.setItem("user",JSON.stringify(response.data.user))
-      if(response){
+      if (response) {
         try {
           const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data.user["email"]}`,
-          {
-            responseType: 'blob',
-            headers: {
-              Accept: 'image/*'
-            }
-        })
+            {
+              responseType: 'blob',
+              headers: {
+                Accept: 'image/*'
+              }
+            })
+            console.log(image);
           if (image) {
             console.log(image);
             const imageURL = URL.createObjectURL(new Blob([image.data]));
@@ -46,7 +48,7 @@ const [loading, setloading] = useState(false)
           window.location.href="/signin"
         }
       }
-      else{
+      else {
         alert("try again")
         window.location.href="/signin"
       }
@@ -54,9 +56,9 @@ const [loading, setloading] = useState(false)
     } catch (error) {
       console.log(error);
       alert("Failed try again")
-      window.location.href="/signin"
+      window.location.href = "/signin"
     }
-   setloading(false)
+    setloading(false)
   };
 
   return (
@@ -93,8 +95,8 @@ const [loading, setloading] = useState(false)
             <p className="forgot-password text-right">
               create an acoount? <a href="/Signup">Signup</a>
             </p>
-            
-            {loading ?<p className="forgot-password text-right">Loading....</p>: <center><button type="submit">Sign In</button> </center>}
+
+            {loading ? <p className="forgot-password text-right">Loading....</p> : <center><button type="submit">Sign In</button> </center>}
           </form>
         </div>
       </div>
