@@ -4,6 +4,7 @@ import "./Navbar.css"
 function Navbar() {
     const handelLogout=()=>{
         localStorage.removeItem("user")
+        localStorage.removeItem("image")
         window.location.href="/signin"
     }
   return (

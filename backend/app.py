@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request,send_file,Response
 from flask_cors import CORS
 from pymongo import MongoClient
+import ast
 import os
 import pandas as pd
 import requests
@@ -56,7 +57,7 @@ def upload_file():
 
     if file:
         # Save the file to a specific folder
-        folder_path = r'C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend\upload'
+        folder_path = r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\upload'
         file_path=os.path.join(folder_path, file.filename)
         file.save(file_path)
         # Read the CSV data using pandas
@@ -99,7 +100,7 @@ def download_file():
         data = collection.find()
         
         # Export the data to a JSON file
-        file_path=r'C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend\import\exported_data.json'
+        file_path=r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\import\exported_data.json'
         with open(file_path, 'w') as file:
             for document in data:
                 # Convert ObjectId to JSON-serializable format
@@ -175,15 +176,21 @@ def delete_database():
 def update_user():
     user_database=client["users"]
     collection_name=user_database["users_data"]
+    input_data=request.form.to_dict()
+    # Extracting 'skills' value and converting it to a Python list
+    if "skills" in input_data:
+        skills_list = ast.literal_eval(input_data['skills'])
+
+        # Update the 'skills' key in the data dictionary with the updated skills_list
+        input_data['skills'] = skills_list
     try:
         # Perform the update in the database
-        print(request.form.to_dict())
-        collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
+        updated_user=collection_name.update_one({'email': request.args.get("email")}, {'$set': input_data})
         user = collection_name.find_one({'email': request.args.get("email")})
         if(user):
             user.pop("_id",None)
             user.pop("image",None)
-            return jsonify({"user_data":user,"message":f"{request.args.get('email')} data updated successfully"}),200
+            return jsonify({"user":user,"message":f"{request.args.get('email')} data updated successfully"}),200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -192,20 +199,25 @@ def create_user():
     user_database=client["users"]
     collection_name=user_database["users_data"] 
     
-    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password'):
-        return jsonify({'error': 'All fields (username, email, password) are required.'}), 400
+    if not request.form.get('username') or not request.form.get('email') or not request.form.get('password') or not request.files['image']:
+        return jsonify({'error': 'All fields (username, email, password,image) are required.'}), 400
     
     isUser=collection_name.find_one({'email': request.form.get('email')})
     if(isUser):
         return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
+  
     image_data = request.files['image'].read()
     encoded_image = base64.b64encode(image_data).decode() 
-    user_info={**request.form.to_dict(), "image":encoded_image }
+    user_info={**request.form.to_dict(), "image":encoded_image ,"skills":[]}
     try:
         user_id=collection_name.insert_one(user_info).inserted_id
         if(user_id):
-            user_data=get_user_info(request.form.get('email'))
-            return user_data, 201
+            user = collection_name.find_one({'_id': user_id})
+            if user :
+                user.pop('_id', None)
+                user.pop("image",None)
+                return jsonify(user) ,201
+            #return user_data, 201
     except Exception as e:
         print(e)
         return "failed to create",400
@@ -218,20 +230,53 @@ def get_user_info(useremail):
         if user and "image" in user:
             user.pop('_id', None)
             user.pop("image",None)
-            return user
+            return user 
         else:
             return jsonify({'error': 'User not found.'}), 404
     except Exception as e:
         print(e)
         return "failed to get data",400
-
-@app.route("/getUser",methods=["GET"])
-def get_user():
-    try:
-        return get_user_info(request.args.get('useremail')),200
-    except Exception as e:
-        return "Failed to fetch user data",400
     
+@app.route("/login",methods=["POST"])
+def login_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    data = request.json    
+    try:
+        if 'email' in data and 'password' in data:
+            email = data['email']
+            password = data['password']
+            user = collection_name.find_one({'email': email})
+            if user and "image" in user:
+                if(user['password']== password):
+                    user.pop('_id', None)
+                    user.pop("image",None)
+                    return jsonify({'message': 'Login successful',"user":user})
+                else:
+                    return jsonify({'message': 'incorrect password or email'})
+            else:
+                return jsonify({'message': 'User Not found'})
+        else:
+            return jsonify({'message': 'Invalid request. Missing email or password.'}), 400
+    except Exception as e:
+        return jsonify({"error":"failed to login"}),400
+@app.route("/getUser", methods=["GET"])
+def get_user():
+    user_database=client["users"]
+    collection_name=user_database["users_data"] 
+    try:
+        user = collection_name.find_one({'email': request.args.get('useremail')})
+        if user :
+            user.pop('_id', None)
+            user.pop("image",None)
+            return user 
+        else:
+            return jsonify({'error': 'User not found.'}), 404
+    except Exception as e:
+        print("error")
+        print(e)
+        return "Failed to fetch user data", 400
+ 
 
 @app.route("/getImage",methods=["GET"])
 def get_image():
@@ -253,7 +298,7 @@ def send_prosody_output():
         dataset_collection=user_database["Kannada_Senetences_Label"] 
         dataset = dataset_collection.find()
         df = pd.DataFrame(dataset)
-        csv_file_path = os.path.join(r"C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
+        csv_file_path = os.path.join(r"C:\Users\91761\Documents\Mtech\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
         df.to_csv(csv_file_path, index=False)
         print("saved")
         result=prosody_output(text)
