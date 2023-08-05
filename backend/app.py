@@ -56,7 +56,7 @@ def upload_file():
 
     if file:
         # Save the file to a specific folder
-        folder_path = r'C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend\upload'
+        folder_path = r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\upload'
         file_path=os.path.join(folder_path, file.filename)
         file.save(file_path)
         # Read the CSV data using pandas
@@ -99,7 +99,7 @@ def download_file():
         data = collection.find()
         
         # Export the data to a JSON file
-        file_path=r'C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend\import\exported_data.json'
+        file_path=r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\import\exported_data.json'
         with open(file_path, 'w') as file:
             for document in data:
                 # Convert ObjectId to JSON-serializable format
@@ -298,7 +298,7 @@ def send_prosody_output():
         dataset_collection=user_database["Kannada_Senetences_Label"] 
         dataset = dataset_collection.find()
         df = pd.DataFrame(dataset)
-        csv_file_path = os.path.join(r"C:\Users\lavak\Documents\MTech\sem-2\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
+        csv_file_path = os.path.join(r"C:\Users\91761\Documents\Mtech\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
         df.to_csv(csv_file_path, index=False)
         print("saved")
         result=prosody_output(text)
