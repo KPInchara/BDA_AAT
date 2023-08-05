@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request,send_file,Response
 from flask_cors import CORS
 from pymongo import MongoClient
+import ast
 import os
 import pandas as pd
 import requests
@@ -175,13 +176,17 @@ def delete_database():
 def update_user():
     user_database=client["users"]
     collection_name=user_database["users_data"]
+    input_data=request.form.to_dict()
+    # Extracting 'skills' value and converting it to a Python list
+    if "skills" in input_data:
+        skills_list = ast.literal_eval(input_data['skills'])
+
+        # Update the 'skills' key in the data dictionary with the updated skills_list
+        input_data['skills'] = skills_list
     try:
         # Perform the update in the database
-        print(request.form.to_dict())
-        updated_user=collection_name.update_one({'email': request.args.get("email")}, {'$set': request.form.to_dict()})
-        print(updated_user)
+        updated_user=collection_name.update_one({'email': request.args.get("email")}, {'$set': input_data})
         user = collection_name.find_one({'email': request.args.get("email")})
-        
         if(user):
             user.pop("_id",None)
             user.pop("image",None)
@@ -201,14 +206,9 @@ def create_user():
     if(isUser):
         return jsonify({'error': f'User already Registered with {request.form.get("email")}.'}), 409    
   
-    #image_data = request.form['image']
-    #image_data = request.form.get('image').read()
-    # print(request.files['image'])
-    # print(request.form)
     image_data = request.files['image'].read()
     encoded_image = base64.b64encode(image_data).decode() 
-    user_info={**request.form.to_dict(), "image":encoded_image }
-    #user_info={**request.form.to_dict()}
+    user_info={**request.form.to_dict(), "image":encoded_image ,"skills":[]}
     try:
         user_id=collection_name.insert_one(user_info).inserted_id
         if(user_id):

@@ -10,7 +10,6 @@ export default function Signup() {
   const handleSubmit = async(e) => {
       e.preventDefault();
       setloading(true)
-      console.log(image);
       if(Username.length===0 || email.length===0 || password.length<=7)  {
         setloading(false)
         alert("Please enter correct details") 
@@ -23,28 +22,31 @@ export default function Signup() {
       formData.append('image', image);
       try {
         const response=await axios.post("http://127.0.0.1:5000/createUser",formData)
-        if(response.data){
-          localStorage.setItem("user",JSON.stringify(response.data))
-          setloading(false)
-          try {
-            const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data["email"]}`,
-            {
-              responseType: 'blob',
-              headers: {
-                Accept: 'image/*'
-              }
-          })
-            if (image) {
-              const imageURL = URL.createObjectURL(new Blob([image.data]));
-              localStorage.setItem("image", JSON.stringify(imageURL))
-                alert("Registration Succesfully done")
+        localStorage.setItem("user",JSON.stringify(response.data))
+        alert("Registration Succesfully done")
           window.location.href="/"
-            }
-          } catch (error) {
-            alert("try again")
-            window.location.href="/signup"
-          }
-        }
+        // if(response.data){
+        //   localStorage.setItem("user",JSON.stringify(response.data))
+        //   setloading(false)
+        //   try {
+        //     const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data["email"]}`,
+        //     {
+        //       responseType: 'blob',
+        //       headers: {
+        //         Accept: 'image/*'
+        //       }
+        //   })
+        //     if (image) {
+        //       const imageURL = URL.createObjectURL(new Blob([image.data]));
+        //       localStorage.setItem("image", JSON.stringify(imageURL))
+        //         alert("Registration Succesfully done")
+        //   window.location.href="/"
+        //     }
+        //   } catch (error) {
+        //     alert("try again")
+        //     window.location.href="/signup"
+        //   }
+        // }
       } catch (error) {
         console.log(error);
         alert(error.response.data.error)
@@ -94,7 +96,7 @@ export default function Signup() {
           <div className="mb-3">
             <label>Upload Image</label>
             <input
-              accept="images"
+              accept="image/*"
               type="file"
               className="form-control"
               placeholder="upload image"

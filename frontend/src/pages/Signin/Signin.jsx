@@ -17,41 +17,47 @@ const Signin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     setloading(true)
     try {
-      const response = await axios.post("http://localhost:5000/login", formData)
-      console.log(response.data.user["email"]);
-
+      const response = await axios.post("http://localhost:5000/login", formData)        
       localStorage.setItem("user", JSON.stringify(response.data.user))
-      console.log(response);
-      if (response) {
-        try {
-          const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data.user["email"]}`,
-            {
-              responseType: 'blob',
-              headers: {
-                Accept: 'image/*'
-              }
-            })
-            console.log(image);
-          if (image) {
-            console.log(image);
-            const imageURL = URL.createObjectURL(new Blob([image.data]));
-            localStorage.setItem("image", JSON.stringify(imageURL))
-            alert(response.data.message)
-            window.location.href="/"
-          }
-        } catch (error) {
-          console.log(error);
-          alert("try again")
-          window.location.href="/signin"
-        }
+      console.log(response.data);
+      alert(response.data.message)
+      if(response.data.user){
+        alert(response.data.message)
+        window.location.href="/"
       }
-      else {
-        alert("try again")
+      else{
+        alert(response.data.message)
         window.location.href="/signin"
       }
+      // if (response) {
+      //   try {
+      //     const image = await axios.get(`http://127.0.0.1:5000/getImage?useremail=${response.data.user["email"]}`,
+      //       {
+      //         responseType: 'blob',
+      //         headers: {
+      //           Accept: 'image/*'
+      //         }
+      //       })
+      //       console.log(image);
+      //     if (image) {
+      //       console.log(image);
+      //       const imageURL = URL.createObjectURL(new Blob([image.data]));
+      //       localStorage.setItem("image", JSON.stringify(imageURL))
+      //       alert(response.data.message)
+      //       window.location.href="/"
+      //     }
+      //   } catch (error) {
+      //     console.log(error);
+      //     alert("try again")
+      //     window.location.href="/signin"
+      //   }
+      // }
+      // else {
+      //   alert("try again")
+      //   window.location.href="/signin"
+      //}
 
     } catch (error) {
       console.log(error);
