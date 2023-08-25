@@ -12,12 +12,13 @@ from io import BytesIO
 from prosody import prosody_output
 #Connect to MongoDB
 client=None
-def connect_to_mongodb():
+async def connect_to_mongodb():
     try:
         global client
-        client = MongoClient('mongodb+srv://LAVA:Lava7259@cluster0.ltqx9vy.mongodb.net/?retryWrites=true&w=majority/',w='majority')
-        db = client['BDA']
-        return db
+        client =await MongoClient('mongodb+srv://LAVA:Lava7259@cluster0.ltqx9vy.mongodb.net/?retryWrites=true&w=majority/',w='majority')
+        if client is not None:
+            db = client['BDA']
+            return db
     except MongoClient.errors.ConnectionFailure as e:
         print(f"Connection error: {e}")
         return None
@@ -59,6 +60,7 @@ def upload_file():
         # Save the file to a specific folder
         folder_path = r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\upload'
         file_path=os.path.join(folder_path, file.filename)
+        
         file.save(file_path)
         # Read the CSV data using pandas
         data = pd.read_csv(file_path)
