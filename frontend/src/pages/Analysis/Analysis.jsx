@@ -87,12 +87,12 @@ function Analysis() {
                 </div>
               </section>
             </Tab>
-            <Tab eventKey="crime" title="Crime Analysis">
+            {/* <Tab eventKey="crime" title="Crime Analysis">
               Tab content for crime Analysis
             </Tab>
             <Tab eventKey="prediction" title="Crime Prediction" >
               Tab content for prediction
-            </Tab>
+            </Tab> */}
           </Tabs>
         </div>
       </div>

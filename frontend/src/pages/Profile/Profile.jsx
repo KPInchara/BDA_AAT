@@ -175,6 +175,19 @@ function Profile() {
   const handleCheckboxChange = (event) => {
     setIsChecked(event.target.checked);
   };
+  const handeldeleteUser=async()=>{
+    try {
+      const deleteResponse=await axios.delete(`http://127.0.0.1:5000/delete_user?email=${email}`)
+      console.log(deleteResponse);
+      if(deleteResponse.status===200){
+        notify("success",deleteResponse.data)
+        handelLogout()
+      }
+    } catch (error) {
+      console.log(error);
+      notify("error", "Failed to delete User")
+    }
+  }
   return (
     <div className='profile'>
       <Navbar />
@@ -202,6 +215,7 @@ function Profile() {
 
             </div>
           </div>
+          <button type="button" onClick={handeldeleteUser} class="btn btn-danger">Delete Account</button>
           <button type="button" onClick={handelLogout} class="btn btn-danger">Logout</button>
         </section>
         <section className='profile-container-right'>
@@ -263,7 +277,7 @@ function Profile() {
                 </button> :
                 <button type="submit" class="btn btn-secondary">Update</button>
               }
-
+             
             </form>
           </div>
         </section>

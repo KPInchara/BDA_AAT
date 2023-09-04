@@ -57,7 +57,7 @@ def upload_file():
 
     if file:
         # Save the file to a specific folder
-        folder_path = r'C:\Users\91761\Documents\Mtech\BDA_AAT\backend\upload'
+        folder_path = r'C:\Users\91761\Documents\Mtech\SEM-2\BDA_AAT\backend\upload'
         file_path=os.path.join(folder_path, file.filename)
         file.save(file_path)
         # Read the CSV data using pandas
@@ -296,16 +296,37 @@ def send_prosody_output():
     try:
         user_database=client["users"]
         dataset_collection=user_database["Kannada_Senetences_Label"] 
-        dataset = dataset_collection.find()
+        dataset =dataset_collection.find()
         df = pd.DataFrame(dataset)
-        csv_file_path = os.path.join(r"C:\Users\91761\Documents\Mtech\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
+        csv_file_path = os.path.join(r"C:\Users\91761\Documents\Mtech\SEM-2\BDA_AAT\backend", 'New_Kannada_Senetences_Label.csv')
         df.to_csv(csv_file_path, index=False)
         print("saved")
-        result=prosody_output(text)
+        result= prosody_output(text)
         return jsonify({"type":result}),200
     except Exception as e:
+        print(e)
         return "failed to detect",400
 
+@app.route("/delete_user",methods=["DELETE"])
+def delete_user():
+    user_email = request.args.get('email')
+    try:
+        user_database=client["users"]
+        collection_name=user_database["users_data"]
+        
+        user_exist=collection_name.find_one({"email":user_email})
+        
+        if(user_exist):
+            collection_name.delete_one({"email":user_email})
+            return f"deleted succesfully",200
+        
+        else:
+            return f"User not found",200
+        
+        
+    except Exception as e:
+        print(e)
+        return "failed to delete",400
 
 @app.route("/getCounts",methods=["GET"])
 def get_prosody_count():

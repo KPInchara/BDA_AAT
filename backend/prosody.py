@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import accuracy_score,precision_score,recall_score, confusion_matrix, classification_report
 
 
-df = pd.read_csv(r"C:\Users\91761\Documents\Mtech\BDA_AAT\backend\Kannada_Senetences_Label.csv",header=None,names=["text","type"])
+df = pd.read_csv(r"C:\Users\91761\Documents\Mtech\SEM-2\BDA_AAT\backend\Kannada_Senetences_Label.csv",header=None,names=["text","type"])
 df["value"]=df['type'].map({"EMOTION":1,"NOEMOTION":-1})
 df=df.dropna(axis=0)
 #df.head()

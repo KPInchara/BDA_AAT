@@ -22,7 +22,6 @@ const Signin = () => {
       const response = await axios.post("http://localhost:5000/login", formData)        
       localStorage.setItem("user", JSON.stringify(response.data.user))
       console.log(response.data);
-      alert(response.data.message)
       if(response.data.user){
         alert(response.data.message)
         window.location.href="/"
