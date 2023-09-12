@@ -9,6 +9,7 @@ import json
 from bson import json_util
 import base64
 from io import BytesIO
+# from googletrans import Translator, LANGUAGES
 from prosody import prosody_output
 #Connect to MongoDB
 client=None
@@ -343,6 +344,22 @@ def get_prosody_count():
     except Exception as e:
         return "Failed to get prosody data",400
     
+@app.route("/convertEK",methods=["POST"])
+def convert_EK():
+    text=request.form.get("key")
+    try:
+        translator = Translator()
+
+        # Detect the source language (English in this case)
+        detected_lang = translator.detect(text).lang
+
+        # Translate the text to Kannada
+        translation = translator.translate(text, src=detected_lang, dest='kn')
+
+        return translation.text
+    except Exception as e:
+        print(e)
+        return "failed to detect",400
 
 if __name__ == '__main__':    
     app.run(debug=True)
